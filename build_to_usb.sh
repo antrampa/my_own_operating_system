@@ -1,0 +1,1 @@
+sudo dd if=boot.img of=/dev/disk2 bs=512 count=1 
