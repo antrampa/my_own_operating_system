@@ -72,8 +72,8 @@ End:
     jmp End
 
 DriveId:    db 0
-WelcomeMessage:     db "Hello and Welcome"
-WelcomeMessageLen:  equ $-WelcomeMessage
+;WelcomeMessage:     db "Hello and Welcome"
+;WelcomeMessageLen:  equ $-WelcomeMessage
 Message:    db "We have error in boot process"
 MessageLen: equ $-Message
 ReadPacket: times 16 db 0
