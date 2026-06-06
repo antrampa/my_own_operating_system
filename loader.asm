@@ -95,6 +95,29 @@ GetMemDone:
     mov cx, MemDoneMessageLen
     int 0x10           
 
+TestA20Line:
+    mov ax, 0xFFFF
+    mov es, ax
+    mov word[ds:0x7C00], 0xA200     ; 0 : 0x7C00 = 0x16 + 0x7C00 = 0x7C00
+    mov word[es:0X7C10], 0XA200     ; 0xFFFF : 0x7C10 = 0xFFFF x 16 + 0x7C10 = 0x107C00 -> A20 line is Enable otherwise is Disabled 
+    jne SetA20LineDone         
+    ; A second test to be sure
+    mov word[0x7C00], 0xB200
+    cmp word[es:0x7C10], 0XB200
+    je End                          ; A-20 Line is disabled. Maximum memory support = 1MB :(
+
+SetA20LineDone:
+    xor ax, ax      ; Init values ax = es = 0;
+    mov es, ax
+
+    mov ah, 0x13        ; function 13h = write string
+    mov al, 1
+    mov bx, 0xd
+    mov dx, 0x0400      ; row 4, col 0
+    mov bp, A20LineMessage
+    mov cx, A20LineMessageLen
+    int 0x10    
+
 ReadError:
 NotSupport:
 End:
@@ -110,6 +133,8 @@ KernelMessage:      db "Kernel is loaded"
 KernelMessageLen:   equ $-KernelMessage
 MemDoneMessage:     db "Get Memeory info done"
 MemDoneMessageLen:  equ $-MemDoneMessage
+A20LineMessage:     db "A-20 Line is enable"
+A20LineMessageLen:  equ $-A20LineMessage
 ReadPacket:         times 16 db 0
 
 
