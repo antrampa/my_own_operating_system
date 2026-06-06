@@ -63,6 +63,38 @@ LoadKernel:
     mov cx, KernelMessageLen
     int 0x10            ; call BIOS video service
 
+GetMemInfoStart:
+    mov eax, 0xE820         ; BIOS function (Query System Address Map) memory map (INT 0x15, EAX=0xE820 interface)
+    mov edx, 0x534D4150
+    mov ecx, 20             ; Requests 20 bytes per memory entry
+    mov edi, 0x9000         ; Points EDI to where the BIOS should write the memory entry
+    xor ebx, ebx            ; ebx = 0 -> start from the first entry
+    int 0x15                ; memory map (INT 0x15, EAX=0xE820 interface)
+    jc NotSupport
+
+GetMemInfo:
+    add edi, 10
+    mov eax, 0xE820
+    mov edx, 0x534D4150
+    mov ecx, 20
+    int 0x15
+    jc GetMemDone
+
+    test ebx, ebx
+    jnz GetMemInfo
+
+
+; Print GetMemDone
+GetMemDone:
+    mov ah, 0x13        ; function 13h = write string
+    mov al, 1
+    mov bx, 0xa
+    ;xor dx, dx ; row 0, col 0
+    mov dx, 0x0300      ; row 3, col 0
+    mov bp, MemDoneMessage
+    mov cx, MemDoneMessageLen
+    int 0x10           
+
 ReadError:
 NotSupport:
 End:
@@ -76,6 +108,8 @@ Message:            db "Long mode is supported"
 MessageLen:         equ $-Message
 KernelMessage:      db "Kernel is loaded"
 KernelMessageLen:   equ $-KernelMessage
+MemDoneMessage:     db "Get Memeory info done"
+MemDoneMessageLen:  equ $-MemDoneMessage
 ReadPacket:         times 16 db 0
 
 
