@@ -118,6 +118,27 @@ SetA20LineDone:
     mov cx, A20LineMessageLen
     int 0x10    
 
+SetVideoMode:
+    mov ax, 3   ; Video mode
+    int 0x10
+
+    mov si, TextModeMessage
+    mov ax, 0xB800
+    mov es, ax
+    xor di, di
+    ;mov dx, 0x0500      ; row 4, col 0
+    mov cx, TextModeMessageLen
+
+PrintMessage:
+    mov al, [si]
+    mov [es:di], al
+    mov byte[es:di+1], 0xA
+
+    add di, 2
+    add si, 1
+    loop PrintMessage
+
+
 ReadError:
 NotSupport:
 End:
@@ -135,6 +156,8 @@ MemDoneMessage:     db "Get Memeory info done"
 MemDoneMessageLen:  equ $-MemDoneMessage
 A20LineMessage:     db "A-20 Line is enable"
 A20LineMessageLen:  equ $-A20LineMessage
+TextModeMessage:     db "Text mode is set"
+TextModeMessageLen:  equ $-TextModeMessage
 ReadPacket:         times 16 db 0
 
 
